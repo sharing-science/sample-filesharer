@@ -14,8 +14,7 @@ app.config['SECRET_KEY'] = "asijfaieufi1jb2i4jbijkdsnjo32ur32r"
 
 
 def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -30,6 +29,8 @@ def fileUpload():
             os.mkdir(target)
         file = request.files['file']
         filename = secure_filename(file.filename)
+        if not allowed_file(filename):
+            return ""
         destination = "/".join([target, filename])
         file.save(destination)
         session['uploadFilePath'] = destination
