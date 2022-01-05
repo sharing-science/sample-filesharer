@@ -7,14 +7,17 @@ const UploadFiles = () => {
   const [currentFile, setCurrentFile] = useState();
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
-  const [fileInfos, setFileInfos] = useState(0);
+  const [fileInfos, setFileInfos] = useState([]);
   const [inputs, setInputs] = useState({
     downloadFile: "",
   });
 
   useEffect(() => {
     UploadService.getFiles().then((response) => {
-      setFileInfos(response.data.files);
+      const info = [];
+      for (let i = 0; i < response.data.files.length; ++i)
+        info.push(response.data.files[i]);
+      setFileInfos(info);
     });
   }, []);
 
@@ -113,12 +116,15 @@ const UploadFiles = () => {
       <div className="card">
         <div className="card-header">List of Files</div>
         <ul className="list-group list-group-flush">
-          {fileInfos &&
-            fileInfos.map((file, index) => (
-              <li className="list-group-item" key={index}>
-                {index}: {file}
-              </li>
-            ))}
+          {fileInfos.length &&
+            fileInfos.map((file, index) => {
+              console.log(fileInfos);
+              return (
+                <li className="list-group-item" key={index}>
+                  {index}: {file.file_name}, Owner: {file.owner_address}
+                </li>
+              );
+            })}
         </ul>
       </div>
     </div>

@@ -42,3 +42,18 @@ def getFiles():
     filenames = next(walk(uploads), (None, None, []))[2]
 
     return jsonify({'files': filenames})
+@app.route('/api/fileNames')
+def getFileNames():
+    try:
+        files = Files.query.all()
+    except:
+        return jsonify({"files": []})
+    res = []
+
+    for i in files:
+        res.append({
+            'owner_address': i.owner_address,
+            'file_name': i.name
+        })
+    return jsonify({"files": res})
+
