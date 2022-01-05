@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import uploadFilesService from "../services/upload-files.service";
 import UploadService from "../services/upload-files.service";
 
 const UploadFiles = () => {
@@ -10,6 +9,9 @@ const UploadFiles = () => {
   const [fileInfos, setFileInfos] = useState([]);
   const [inputs, setInputs] = useState({
     downloadFile: "",
+    fileName: "",
+    fileDescription: "",
+    authorName: "",
   });
 
   useEffect(() => {
@@ -25,13 +27,13 @@ const UploadFiles = () => {
     setSelectedFiles(event.target.files);
   };
 
-  const upload = () => {
+  const uploadFile = () => {
     let currentFile = selectedFiles[0];
 
     setProgress(0);
     setCurrentFile(currentFile);
 
-    UploadService.upload(currentFile, (event) => {
+    UploadService.upload(currentFile, inputs, (event) => {
       setProgress(Math.round((100 * event.loaded) / event.total));
     })
       .then((response) => {
@@ -61,7 +63,7 @@ const UploadFiles = () => {
 
   const download = async (e) => {
     e.preventDefault();
-    await uploadFilesService.download(inputs.downloadFile);
+    await UploadService.download(inputs.downloadFile);
   };
 
   return (
@@ -81,39 +83,83 @@ const UploadFiles = () => {
         </div>
       )}
 
-      <label className="btn btn-default">
-        <input type="file" onChange={selectFile} />
-      </label>
-
-      <button
-        className="btn btn-success"
-        disabled={!selectedFiles}
-        onClick={upload}
-      >
-        Upload
-      </button>
+      <form>
+        <div className="form-group">
+          <input type="file" onChange={selectFile} />
+        </div>
+        <div className="form-group">
+          <label>File Name</label>
+          <br />
+          <input
+            type="text"
+            name="fileName"
+            value={inputs.fileName}
+            onChange={changeInput}
+          />
+        </div>
+        <div className="form-group">
+          <label>Author</label>
+          <br />
+          <input
+            type="text"
+            name="authorName"
+            value={inputs.authorName}
+            onChange={changeInput}
+          />
+        </div>
+        <div className="form-group">
+          <label>Description</label>
+          <br />
+          <textarea
+            type="text"
+            name="fileDescription"
+            value={inputs.fileDescription}
+            onChange={changeInput}
+            className="w-100"
+          />
+        </div>
+        <button
+          className="btn btn-success"
+          type="submit"
+          disabled={
+            !(
+              selectedFiles &&
+              inputs.fileName &&
+              inputs.authorName &&
+              inputs.fileDescription
+            )
+          }
+          onClick={uploadFile}
+        >
+          Upload File
+        </button>
+      </form>
 
       <div className="alert alert-light" role="alert">
         {message}
       </div>
 
-      <label className="btn btn-default">
-        <input
-          type="text"
-          name="downloadFile"
-          value={inputs.downloadFile}
-          onChange={changeInput}
-        />
-      </label>
-      <button
-        className="btn btn-success"
-        disabled={!inputs.downloadFile}
-        onClick={download}
-      >
-        Download
-      </button>
+      <form>
+        <div className="form-group">
+          <label>File Name</label>
+          <br />
+          <input
+            type="text"
+            name="downloadFile"
+            value={inputs.downloadFile}
+            onChange={changeInput}
+          />
+        </div>
+        <button
+          className="btn btn-success mb-4"
+          disabled={!inputs.downloadFile}
+          onClick={download}
+        >
+          Download
+        </button>
+      </form>
 
-      <div className="card">
+      <div className="card w-auto">
         <div className="card-header">List of Files</div>
         <ul className="list-group list-group-flush">
           {fileInfos.length &&

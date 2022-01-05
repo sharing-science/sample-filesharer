@@ -6,6 +6,10 @@ from eth_account.messages import encode_defunct
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import create_access_token
+from Services.database import db, Files
+from Services.helpers import login_required, hasAccessToFile
+from random import randint
+from datetime import datetime
 
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 app = Flask(__name__)
@@ -16,6 +20,12 @@ UPLOAD_DIRECTORY = getcwd()
 app.config['UPLOAD_FOLDER'] = UPLOAD_DIRECTORY
 app.config['SECRET_KEY'] = "asijfaieufi1jb2i4jbijkdsnjo32ur32r"
 app.config["JWT_SECRET_KEY"] = "36babeb3b17611ea80862816a84a348ce8b25e23b23511eabbaf2816a84a348c05a4638bb23611ea919e2816a84a348c"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.app = app
+db.init_app(app)
+db.create_all()
 jwt = JWTManager(app)
 
 CODES = {}
@@ -36,8 +46,17 @@ def fileUpload():
     if not allowed_file(filename):
         return jsonify({'message': "Incompatible File Type!"})
     destination = "/".join([target, filename])
-    file.save(destination)
     session['uploadFilePath'] = destination
+
+    file_description = request.args.get("description")
+    file_author = request.args.get("authorName")
+    upload_time = datetime.utcnow()
+
+    f = Files(owner_address=session.get('user')[
+              'publicAddress'], owner_name=file_author, name=filename, description=file_description, date=upload_time)
+    db.session.add(f)
+    db.session.commit()
+    file.save(destination)
     return jsonify({'message': "Successfully Uploaded File!"})
 
 

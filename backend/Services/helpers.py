@@ -11,3 +11,6 @@ def login_required(f):
             abort(401)
     return wrap
 
+
+def hasAccessToFile(filename, public_address):
+    return True
