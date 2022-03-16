@@ -7,7 +7,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_jwt_extended import create_access_token
 from Services.database import db, Files
-from Services.helpers import login_required, hasAccessToFile
+from Services.helpers import login_required
 from random import randint
 from datetime import datetime
 
@@ -53,23 +53,41 @@ def fileUpload():
     upload_time = datetime.utcnow()
 
     f = Files(owner_address=session.get('user')[
-              'publicAddress'], owner_name=file_author, name=filename, description=file_description, date=upload_time)
+              'publicAddress'], author=file_author, name=filename, description=file_description, date=upload_time)
     db.session.add(f)
     db.session.commit()
     file.save(destination)
     return jsonify({'message': "Successfully Uploaded File!"})
 
 
-@app.route('/files', methods=['GET'])
+@app.route('/getcode')
+def getCode():
+    requester = request.args.get("requester")
+    filename = request.args.get("filename")
+    pk = request.args.get("pk")
+    message = encode_defunct(text=f"{requester}, {filename}")
+    signature = w3.eth.account.sign_message(message, private_key=pk)
+    return jsonify({"signature": signature["signature"].hex()})
+
+
+@app.route('/files')
+@login_required
 def getFiles():
-    uploads = path.join(UPLOAD_DIRECTORY, 'Files')
-    filename = request.args.get('filename')
-    if filename:
+    filename = request.args.get("filename")
+    authToken = request.args.get("authtoken")
+    owner = Files.query.filter_by(name=filename).one().owner_address
+    requester = session.get('user')['publicAddress']
+    message = encode_defunct(
+        text=f"{requester}, {filename}")
+    # Who signed the message
+    authorizer = w3.eth.account.recover_message(message, signature=authToken)
+    if authorizer == owner:
+        uploads = path.join(UPLOAD_DIRECTORY, 'Files')
         return send_from_directory(uploads, filename)
+    else:
+        abort(401)
 
-    filenames = next(walk(uploads), (None, None, []))[2]
 
-    return jsonify({'files': filenames})
 @app.route('/api/fileNames')
 def getFileNames():
     try:
@@ -81,7 +99,10 @@ def getFileNames():
     for i in files:
         res.append({
             'owner_address': i.owner_address,
-            'file_name': i.name
+            'file_name': i.name,
+            'description': i.description,
+            'author': i.author,
+            'date': i.date
         })
     return jsonify({"files": res})
 

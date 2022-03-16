@@ -24,9 +24,9 @@ class UploadFilesService {
     return http.get("/api/fileNames");
   }
 
-  download(fileName) {
+  download(fileName, authToken) {
     http({
-      url: "/files?filename=" + fileName, //your url
+      url: `/files?filename=${fileName}&authtoken=${authToken}`, //your url
       method: "GET",
       responseType: "blob", // important
     }).then((response) => {

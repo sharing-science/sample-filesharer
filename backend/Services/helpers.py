@@ -12,5 +12,3 @@ def login_required(f):
     return wrap
 
 
-def hasAccessToFile(filename, public_address):
-    return True

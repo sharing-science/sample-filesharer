@@ -9,10 +9,13 @@ import LoginPage from "./components/loginPage";
 function App() {
   return (
     <>
-      <div className="container" style={{ width: "600px" }}>
-        <div style={{ margin: "20px" }}>
-          <h4>React upload Files</h4>
+      <div className="container">
+        <div className="row">
+          <div className="col"></div>
+          <h4 className="mt-4 col">Sample File Sharer </h4>
+          <div className="col"></div>
         </div>
+
         <Router>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
