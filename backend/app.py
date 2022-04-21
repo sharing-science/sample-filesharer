@@ -1,4 +1,4 @@
-from os import error, getcwd, path, mkdir, walk
+from os import getcwd, path, mkdir
 from flask import Flask, request, session, send_from_directory, jsonify, abort
 from werkzeug.utils import secure_filename
 from web3.auto import w3

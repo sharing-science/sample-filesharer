@@ -4,12 +4,6 @@ import { Link } from 'react-router-dom'
 
 import {
   Button,
-  Card,
-  CardHeader,
-  CardFooter,
-  CardImg,
-  CardTitle,
-  Container,
   Row,
   Col,
   Input,
