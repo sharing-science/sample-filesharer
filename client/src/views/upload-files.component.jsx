@@ -23,7 +23,6 @@ const UploadFiles = () => {
     fileName: '',
     fileDescription: '',
     authorName: '',
-    authToken: '',
   })
   const [loggedIn, setLoggedIn] = useState(false)
 
@@ -77,7 +76,7 @@ const UploadFiles = () => {
 
   const download = async (e) => {
     e.preventDefault()
-    await UploadService.download(inputs.downloadFile, inputs.authToken)
+    await UploadService.download(inputs.downloadFile)
   }
 
   return (
@@ -175,14 +174,6 @@ const UploadFiles = () => {
                 onChange={changeInput}
               />
               <br />
-              <Label>Auth Token</Label>
-              <br />
-              <Input
-                type="text"
-                name="authToken"
-                value={inputs.authToken}
-                onChange={changeInput}
-              />
             </div>
             <Button
               className="btn btn-success mb-4"

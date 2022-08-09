@@ -2,6 +2,8 @@ from os import getcwd, path, mkdir
 from flask import Flask, request, session, send_from_directory, jsonify, abort
 from werkzeug.utils import secure_filename
 from web3.auto import w3
+import json
+import web3
 from eth_account.messages import encode_defunct
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -74,14 +76,17 @@ def getCode():
 @login_required
 def getFiles():
     filename = request.args.get("filename")
-    authToken = request.args.get("authtoken")
-    owner = Files.query.filter_by(name=filename).one().owner_address
-    requester = session.get('user')['publicAddress']
-    message = encode_defunct(
-        text=f"{requester}, {filename}")
-    # Who signed the message
-    authorizer = w3.eth.account.recover_message(message, signature=authToken)
-    if authorizer == owner:
+    q = Files.query.filter_by(name=filename).one()
+    fileID = q.id-1
+    requester = session.get('user')['publicAddress']  
+    w3 = web3.Web3(web3.HTTPProvider('http://localhost:8545'))
+    f = open('Ownership.json')
+    abi=json.load(f)
+    f.close()
+    address = "0x50DA5C0a99B372Fb945d05741400DdA91aC52a68"
+    contract = w3.eth.contract(address=address, abi=abi['abi'])
+    answer = contract.functions.checkAccess(fileID, requester).call()
+    if answer:
         uploads = path.join(UPLOAD_DIRECTORY, 'Files')
         return send_from_directory(uploads, filename)
     else:
