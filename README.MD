@@ -1,4 +1,8 @@
 # Sample File Sharer
+A POC by Noe Horowitz
+
+Walkthrough tutorial video:
+https://rpi.box.com/s/gieyjk3pvzyg8yu7a9hfgc3a9sqf8lgs
 
 ## Installation
 
