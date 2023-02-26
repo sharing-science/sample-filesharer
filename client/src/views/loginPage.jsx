@@ -64,7 +64,12 @@ const LoginPage = () => {
     if (!web3) {
       try {
         // Request account access if needed
-        await window.ethereum.enable()
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          console.log('Connected to MetaMask:', accounts[0]);
+        } catch (error) {
+          console.error('Error connecting to MetaMask:', error);
+        }
 
         // We don't know window.web3 version, so we use our own instance of web3
         // with the injected provider given by MetaMask

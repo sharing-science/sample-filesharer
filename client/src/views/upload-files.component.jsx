@@ -12,6 +12,9 @@ import {
   FormGroup,
 } from 'reactstrap'
 
+import { createHash } from 'crypto';
+//import BigNumber from 'bignumber.js';
+
 const UploadFiles = () => {
   const [selectedFiles, setSelectedFiles] = useState()
   const [currentFile, setCurrentFile] = useState()
@@ -25,6 +28,7 @@ const UploadFiles = () => {
     authorName: '',
   })
   const [loggedIn, setLoggedIn] = useState(false)
+  const [hash, setHash] = useState('')
 
   useEffect(() => {
     localStorage.getItem('public_key') ? setLoggedIn(true) : setLoggedIn(false)
@@ -37,6 +41,29 @@ const UploadFiles = () => {
   }, [])
 
   const selectFile = (event) => {
+    // Initializing the file reader
+    const fr = new FileReader()
+
+    // Listening to when the file has been read.
+    fr.onload = async () => {
+
+        let hash = ''
+
+        //result = await sha256(fr.result);
+        hash = createHash('sha256').update(JSON.stringify(fr.result)).digest('hex')
+
+
+        // Setting the hashed text as the output
+        setHash(hash)
+        
+        //setFileID(BigNumber(hash, 16));
+
+        // Setting the content of the file as file input
+        //setFileInput(fr.result);
+    }
+
+    // Reading the file.
+    fr.readAsText(event.target.files[0])
     setSelectedFiles(event.target.files)
   }
 
@@ -108,7 +135,7 @@ const UploadFiles = () => {
           )}
 
           <Button>
-            <input class="form-control" type="file" onChange={selectFile} />
+            <input type="file" className="form-control" onChange={selectFile} />
           </Button>
           <Form>
             <FormGroup>
@@ -161,6 +188,7 @@ const UploadFiles = () => {
           </Form>
           <div className="alert alert-light" role="alert">
             {message}
+            {'File hash: ' + hash}
           </div>
 
           <Form>
@@ -198,18 +226,17 @@ const UploadFiles = () => {
           </tr>
         </thead>
         <tbody>
-          {fileInfos.length &&
-            fileInfos.map((file, index) => {
-              return (
-                <tr key={'fileRow' + index}>
-                  <th scope="row">{index}</th>
-                  <td>{file.file_name}</td>
-                  <td>{file.author}</td>
-                  <td>{file.description}</td>
-                  <td>{file.date}</td>
-                </tr>
-              )
-            })}
+          {fileInfos.length > 0 && fileInfos.map((file, index) => {
+            return (
+              <tr key={'fileRow' + index}>
+                <th scope="row">{index}</th>
+                <td>{file.file_name}</td>
+                <td>{file.author}</td>
+                <td>{file.description}</td>
+                <td>{file.date}</td>
+              </tr>
+            )
+          })}
         </tbody>
       </table>
     </div>
