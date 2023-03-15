@@ -13,7 +13,6 @@ import {
 } from 'reactstrap'
 
 import { createHash } from 'crypto';
-//import BigNumber from 'bignumber.js';
 
 const UploadFiles = () => {
   const [selectedFiles, setSelectedFiles] = useState()
@@ -55,11 +54,6 @@ const UploadFiles = () => {
 
         // Setting the hashed text as the output
         setHash(hash)
-        
-        //setFileID(BigNumber(hash, 16));
-
-        // Setting the content of the file as file input
-        //setFileInput(fr.result);
     }
 
     // Reading the file.

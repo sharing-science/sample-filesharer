@@ -77,7 +77,7 @@ def getCode():
 def getFiles():
     filename = request.args.get("filename")
     q = Files.query.filter_by(name=filename).one()
-    fileID = q.id-1
+    fileID = q.id-1                                 #BRUH THIS IS BREAKING EVERYTHING
     requester = session.get('user')['publicAddress']  
     w3 = web3.Web3(web3.HTTPProvider('http://localhost:8545'))
     f = open('Ownership.json')
